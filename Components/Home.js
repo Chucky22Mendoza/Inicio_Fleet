@@ -1,10 +1,12 @@
 // In App.js in a new project
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TouchableHighlight, ScrollView, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TouchableHighlight, ScrollView, Modal, Image } from 'react-native';
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { Divider } from 'react-native-elements';
 import CalendarPicker from 'react-native-calendar-picker';
+import axios from 'axios';
+import * as Font from 'expo-font';
 
 import TopTemplate from './TopTemplate';
 //import BottomTemplate from './BottomTemplate';
@@ -14,8 +16,18 @@ export default class HomeScreen extends React.Component {
         super(props);
         this.state = {
             modalVisible: false,
-            selectedStartDate: null,
-            selectedEndDate: null,
+            selectedDate: null,
+            id_usuario: 7,
+            obj_aux_final: [],
+            obj_items: [],
+            validateWS: false,
+            objChofer: [],
+            out_total_general: "0.00",
+            out_ganancia_actual_general: "0.00",
+            out_viajes_general: "0",
+            out_semana: "00/00 - 00/00",
+            nombre_propietario: '',
+            fontLoaded: false,
         };
         this.onDateChange = this.onDateChange.bind(this);
     }
@@ -32,25 +44,338 @@ export default class HomeScreen extends React.Component {
         this.setState({modalVisible: visible});
     }
 
-    onDateChange(date, type) {
-        if (type === 'END_DATE') {
-            this.setState({
-                selectedEndDate: date,
+    async componentDidMount(){
+
+        await Font.loadAsync({
+            'Aller_Lt': require('./../assets/fonts/Aller_Lt.ttf'),
+        });
+
+        this.setState({fontLoaded: true});
+
+        try{
+
+            let date, day, month, year, fecha;
+            date = new Date();
+
+            day = date.getDate();
+            month = date.getMonth() + 1;
+            year = date.getFullYear();
+
+            if (day.toString().length == 1) {
+                day = '0' + day;
+            }
+
+            if (month.toString().length == 1) {
+                month = '0' + month;
+            }
+
+            //fecha =  year + "-" + month + "-" + day;
+            fecha = '2019-09-12';
+
+            const res = await axios.post('http://34.95.33.177:3001/inicio_fleet/interfaz_42/fleet_home', {
+                id_usuario: this.state.id_usuario,
+                fecha_filtro: fecha
             });
-        } else {
+
+            //console.log(res);
+            const obj = res.data.datos;
             this.setState({
-                selectedStartDate: date,
-                selectedEndDate: null,
+                objChofer: obj,
+                validateWS: true
+            });
+
+            this.objToChofer();
+
+        }catch(e){
+            console.log(e);
+            alert("No hay conexión al web service", "Error");
+            this.setState({
+                validateWS: false
+            });
+        }
+
+    }
+
+    objToChofer = () => {
+        const obj_chofer = this.state.objChofer;
+        const obj_aux = [];
+
+        obj_chofer.forEach(chofer => {
+            if(chofer.encrypt){
+                chofer.id_chofer = aes256.decrypt(key, chofer.id_chofer);
+                chofer.nombre = aes256.decrypt(key, chofer.nombre);
+                chofer.ganancia_semanal = aes256.decrypt(key, chofer.ganancia_semanal);
+                chofer.ganancia_actual = aes256.decrypt(key, chofer.ganancia_actual);
+                chofer.numero_viajes_actual = aes256.decrypt(key, chofer.numero_viajes_actual);
+                chofer.rango_fechas = aes256.decrypt(key, chofer.rango_fechas);
+                chofer.nombre_propietario = aes256.decrypt(key, chofer.nombre_propietario);
+            }
+
+            obj_aux.push(chofer);
+        });
+
+        let semana;
+        const nombre_propietario = obj_aux[0].nombre_propietario;
+
+        if(obj_aux[0].rango_fechas != null){
+
+            let obj_semana = obj_aux[0].rango_fechas.split('-');
+
+            let fecha_dia_1 = obj_semana[2];
+            let fecha_mes_1 = this.getMonthLetter(obj_semana[1]);
+            let fecha_dia_2 = obj_semana[5];
+            let fecha_mes_2 = this.getMonthLetter(obj_semana[4]);
+
+
+            if(fecha_dia_1.substring(0,1) == "0"){
+                fecha_dia_1 = fecha_dia_1.replace('0', '');
+            }
+
+            if(fecha_dia_2.substring(0,1) == "0"){
+                fecha_dia_2 = fecha_dia_2.replace('0', '');
+            }
+
+            semana = fecha_dia_1 + ' ' + fecha_mes_1 + ' - ' + fecha_dia_2 + ' ' + fecha_mes_2;
+        }else{
+            semana = 'Sin registro';
+        }
+
+        this.setState({
+            obj_aux_final: obj_aux,
+            out_semana: semana,
+            nombre_propietario: nombre_propietario
+        });
+
+        this.calculateTotal();
+        this.componentBody();
+    }
+
+    componentBody = () =>{
+        const obj = this.state.obj_aux_final;
+        let obj_items_aux = [];
+
+        if(obj.length != 0){
+
+            let obj_actual = obj;
+            this.setState({
+                obj_aux_final: obj_actual
+            });
+            let last_index_obj = obj_actual.length;
+
+            obj_actual.forEach((object, index) => {
+                obj_items_aux.push(<Divider key={"divider_inicio_" + index} style={styles.row}></Divider>);
+                obj_items_aux.push(
+                    <TouchableOpacity onPress={() => this.props.navigation.navigate("RealTimeReport", { id_chofer: object.id_chofer, nombre: object.nombre, ganancia_actual: object.ganancia_actual })} key={"button_" + index}>
+                        <View key={"view_1_" + index} style={{ height: 90 }}>
+                            <View key={"view_2_" + index} style={{ padding: 5, flexDirection: 'row', justifyContent: 'flex-start' }}>
+                                {
+                                    this.state.fontLoaded ? (
+                                        <Text key={"text_nombre_" + index} style={{ fontFamily: 'Aller_Lt', fontSize: 18, paddingHorizontal: 5 }}>{object.nombre}</Text>
+                                    ) : null
+                                }
+                                <Icon
+                                    key={"icon_chevron_" + index}
+                                    name='chevron-right'
+                                    size={18}
+                                    style={{
+                                        paddingTop: 5
+                                    }}
+                                />
+                            </View>
+                            {
+                                this.state.fontLoaded ? (
+                                    <View key={"view_3_" + index} style={{ paddingTop: 5, flexDirection: 'row', justifyContent: 'space-evenly' }}>
+                                        <Text key={"text_total_ganancia_semanal_" + index} style={{ fontFamily: 'Aller_Lt', color: 'blue', fontSize: 16 }}>${object.ganancia_semanal}MXN</Text>
+                                        <Text key={"text_total_ganancia_actual_" + index} style={{ fontFamily: 'Aller_Lt', fontSize: 14 }}>${object.ganancia_actual}MXN</Text>
+                                        <Text key={"text_total_viajes_" + index} style={{ fontFamily: 'Aller_Lt', fontSize: 14 }}>{object.numero_viajes_actual}</Text>
+                                    </View>
+                                ) : null
+                            }
+                            {
+                                this.state.fontLoaded ? (
+                                    <View key={"view_4_" + index} style={{ paddingBottom: 5, marginLeft: 8, flexDirection: 'row', justifyContent: 'space-evenly' }}>
+                                        <Text key={"text_ganancia_semanal_" + index} style={{ fontFamily: 'Aller_Lt', color: 'blue', fontSize: 15 }}>Ganancia semanal</Text>
+                                        <Text key={"text_ganancia_actual_" + index} style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>Ganancia actual</Text>
+                                        <Text key={"text_viajes_" + index} style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>Viajes</Text>
+                                    </View>
+                                ) : null
+                            }
+                        </View>
+                    </TouchableOpacity>
+                );
+
+                if ((index + 1) == last_index_obj) {
+                    obj_items_aux.push(<Divider key={"divider_final_" + index} style={styles.row}></Divider>);
+                }
+            });
+
+            this.setState({
+                obj_items: obj_items_aux
+            });
+
+        }
+    }
+
+    setInfoWS = () =>{
+        return(<View style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: 400,
+                    height: 400
+                }}>
+                    <Image
+                        source= {require('./../resource/img/loading.gif')}
+                        style= {styles.img}
+                    />
+                </View>);
+    }
+
+    calculateTotal = () => {
+        let obj_convert = this.state.obj_aux_final;
+        let total = 0;
+        let ganancia_actual = 0;
+        let viajes = 0;
+        obj_convert.forEach((object, index) => {
+            total += parseFloat(object.ganancia_semanal);
+            ganancia_actual += parseFloat(object.ganancia_actual);
+            viajes += parseInt(object.numero_viajes_actual);
+        });
+
+        total = this.getCentavos(total);
+        ganancia_actual = this.getCentavos(ganancia_actual);
+
+        this.setState({
+            out_total_general: total,
+            out_ganancia_actual_general: ganancia_actual,
+            out_viajes_general: viajes
+        });
+    }
+
+    async onDateChange(date, type) {
+
+        let fecha = this.getDateHourFullDate(date);
+        this.setState({
+            selectedDate: fecha
+        });
+
+        try{
+
+            const res = await axios.post('http://34.95.33.177:3001/inicio_fleet/interfaz_42/fleet_home', {
+                id_usuario: this.state.id_usuario,
+                fecha_filtro: fecha
+            });
+
+            const obj = res.data.datos;
+
+            this.setState({
+                objChofer: obj,
+                validateWS: true
+            });
+
+            this.objToChofer();
+
+        }catch(e){
+            console.log(e);
+            alert("No hay conexión al web service", "Error");
+            this.setState({
+                validateWS: false
             });
         }
     }
 
+    getDateHourFullDate = (date) => {
+        const fecha_aux = date.toString();
+
+        const split_fecha = fecha_aux.split(' ');
+        const mes_final = this.getMonthNumber(split_fecha[1]);
+        const dia_final = split_fecha[2];
+        const agno_final = split_fecha[3];
+        const fecha_final = agno_final + '-' + mes_final + '-' + dia_final;
+
+        return fecha_final;
+    }
+
+    getMonthNumber = (mes) => {
+        switch (mes) {
+            case 'Jan':
+                return '01';
+            case 'Feb':
+                return '02';
+            case 'Mar':
+                return '03';
+            case 'Apr':
+                return '04';
+            case 'May':
+                return '05';
+            case 'Jun':
+                return '06';
+            case 'Jul':
+                return '07';
+            case 'Aug':
+                return '08';
+            case 'Sep':
+                return '09';
+            case 'Oct':
+                return '10';
+            case 'Nov':
+                return '11';
+            case 'Dec':
+                return '12';
+        }
+    }
+
+    getMonthLetter = (mes) => {
+        switch (mes) {
+            case '01':
+                return 'ene';
+            case '02':
+                return 'feb';
+            case '03':
+                return 'mar';
+            case '04':
+                return 'abr';
+            case '05':
+                return 'may';
+            case '06':
+                return 'jun';
+            case '07':
+                return 'jul';
+            case '08':
+                return 'ago';
+            case '09':
+                return 'sep';
+            case '10':
+                return 'oct';
+            case '11':
+                return 'nov';
+            case '12':
+                return 'dic';
+        }
+    }
+
+    getCentavos = (numberValue) =>{
+        if(numberValue == '' || numberValue == null){
+            numberValue = 0;
+        }
+
+        let valueString = numberValue.toString();
+        let split_numberValue = valueString.split('.');
+        let outValue = 0;
+        if(split_numberValue.length > 1){
+            outValue = numberValue + '0';
+        }else{
+            outValue = numberValue + '.00';
+        }
+        return outValue;
+    }
+
     render() {
-        const { selectedStartDate, selectedEndDate } = this.state;
+        const { selectedDate } = this.state;
         const minDate = new Date(2019, 1, 1);
         const maxDate = new Date(2050, 6, 3);
-        const startDate = selectedStartDate ? selectedStartDate.toString() : '';
-        const endDate = selectedEndDate ? selectedEndDate.toString() : '';
+        const date = selectedDate ? selectedDate.toString() : '';
+
         return (
             <View>
                 <ScrollView style={{marginBottom: 75}}>
@@ -63,7 +388,8 @@ export default class HomeScreen extends React.Component {
                             style={{
                                 paddingLeft: 5,
                                 paddingTop: 10,
-                                position: 'absolute'
+                                position: 'absolute',
+                                color: '#ff8834'
                             }}
                         />
 
@@ -78,16 +404,29 @@ export default class HomeScreen extends React.Component {
                             }}>
 
                             <View style={{ alignItems: 'center', justifyContent: 'flex-end' }}>
-                                <Text style={{ fontSize: 30 }}>$5100.00 MXN</Text>
-                                <Text style={{ fontSize: 15 }}>Ganancia semana</Text>
-                                <TouchableOpacity onPress = { () => this.setModalVisible(true) }>
+                                {
+                                    this.state.fontLoaded ? (
+                                            <Text style={{ fontFamily: 'Aller_Lt', fontSize: 30 }}>${this.state.out_total_general} MXN</Text>
+                                    ): null
+                                }
+                                {
+                                    this.state.fontLoaded ? (
+                                            <Text style={{ fontFamily: 'Aller_Lt', fontSize: 15 }}>Ganancia semana</Text>
+                                    ): null
+                                }
+                                <TouchableOpacity onPress = { () => this.setModalVisible(!this.state.modalVisible) }>
                                     <View style={{ flexDirection: 'row' }}>
-                                        <Text style={{ fontSize: 15, borderWidth: 2, paddingVertical: 2, paddingHorizontal: 5 }}>19 ago - 25 ago</Text>
+                                        {
+                                            this.state.fontLoaded ? (
+                                                <Text style={{ fontFamily: 'Aller_Lt', fontSize: 15, borderWidth: 2, paddingVertical: 2, paddingHorizontal: 5 }}>{this.state.out_semana}</Text>
+                                            ): null
+                                        }
                                         <Icon
                                             name='calendar-alt'
                                             size={25}
                                             style={{
-                                                marginLeft: 5
+                                                marginLeft: 5,
+                                                color: '#ff8834'
                                             }}
                                         />
                                     </View>
@@ -104,32 +443,35 @@ export default class HomeScreen extends React.Component {
                                         backgroundColor: '#f0f4f7'}}>
                                         <View>
                                         <CalendarPicker
-                                                startFromMonday={true}
-                                                allowRangeSelection={true}
                                                 minDate={minDate}
                                                 maxDate={maxDate}
                                                 todayBackgroundColor="#000"
                                                 selectedDayColor="#7300e6"
                                                 selectedDayTextColor="#FFFFFF"
                                                 onDateChange={this.onDateChange}
-                                                weekdays={['DOM', 'LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB']}
                                             />
 
                                             <View>
-                                                <Text>Día Inicial: {startDate}</Text>
-                                                <Text>Día Final: {endDate}</Text>
+                                                {
+                                                    this.state.fontLoaded ? (
+                                                        <Text style={{fontFamily: 'Aller_Lt'}}>Día Seleccionado: {date}</Text>
+                                                    ): null
+                                                }
                                             </View>
                                             <TouchableHighlight
                                                 onPress={() => {
                                                     this.setModalVisible(!this.state.modalVisible);
                                                 }}
                                                 style={{
-                                                    backgroundColor:'red',
                                                     justifyContent: 'center',
                                                     alignItems: 'center',
                                                     marginHorizontal: 50
                                                 }}>
-                                                <Text>Salir</Text>
+                                                    {
+                                                        this.state.fontLoaded ? (
+                                                            <Text style={{fontFamily: 'Aller_Lt', color: 'red'}}>Selecciona semana a consultar</Text>
+                                                        ): null
+                                                    }
                                             </TouchableHighlight>
                                         </View>
                                     </View>
@@ -147,27 +489,35 @@ export default class HomeScreen extends React.Component {
                             flexDirection: 'row'
                         }}>
 
-                            <View style={{
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginLeft: 40,
-                                width: 200
-                            }}>
-                                <Text>$1700.00 MXN</Text>
-                                <Text>Ganancia actual</Text>
+                                {
+                                this.state.fontLoaded ? (
+                                    <View style={{
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        marginLeft: 40,
+                                        width: 200
+                                    }}>
+                                        <Text style={{fontFamily: 'Aller_Lt'}}>${this.state.out_ganancia_actual_general} MXN</Text>
+                                        <Text style={{fontFamily: 'Aller_Lt'}}>Ganancia actual</Text>
+                                    </View>
+                                ) : null
+                            }
+
+                                {
+                                    this.state.fontLoaded ? (
+                                        <View style={{
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            marginRight: 80,
+                                            width: 200
+                                        }}>
+                                            <Text style={{fontFamily: 'Aller_Lt'}}>{this.state.out_viajes_general}</Text>
+                                            <Text style={{fontFamily: 'Aller_Lt'}}>Viajes</Text>
+                                        </View>
+                                    ): null
+                                }
                             </View>
 
-                            <View style={{
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginRight: 80,
-                                width: 200
-                            }}>
-                                <Text>166</Text>
-                                <Text>Viajes</Text>
-                            </View>
-
-                        </View>
 
                         <Divider style={styles.row}></Divider>
 
@@ -181,11 +531,15 @@ export default class HomeScreen extends React.Component {
                                     style={{
                                         paddingLeft: 20,
                                         paddingRight: 10,
-                                        paddingVertical: 10
-
+                                        paddingVertical: 10,
+                                        color: '#ec6a2c'
                                     }}
                                 />
-                                <Text style={{ fontSize: 18, paddingTop: 25 }}>Mis ganancias</Text>
+                                {
+                                    this.state.fontLoaded ? (
+                                        <Text style={{ fontFamily: 'Aller_Lt', fontSize: 18, paddingTop: 25}}>Mis ganancias</Text>
+                                    ): null
+                                }
                             </View>
                             <View style={{
                                 width: 200,
@@ -195,100 +549,27 @@ export default class HomeScreen extends React.Component {
                                 flexDirection: 'row',
                                 justifyContent: 'flex-end'}}>
                                 <TouchableOpacity
-                                style={styles.button}
-                                onPress={() => this.props.navigation.navigate("EarningNoDriver")}>
-                                    <Text style={{fontSize: 10}}>Socio No Conductor</Text>
+                                style={[styles.button, {backgroundColor: '#ff8834'}]}
+                                onPress={() => this.props.navigation.navigate("EarningNoDriver", {out_semana: this.state.out_semana, id_usuario: this.state.id_usuario, nombre_propietario: this.state.nombre_propietario})}>
+                                    {
+                                        this.state.fontLoaded ? (
+                                            <Text style={{fontFamily: 'Aller_Lt', fontSize: 10}}>Socio No Conductor</Text>
+                                        ): null
+                                    }
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                style={[styles.button, {marginLeft: .2}]}
-                                onPress={() => this.props.navigation.navigate("EarningDriver")}>
-                                    <Text style={{fontSize: 10}}>Socio Conductor</Text>
+                                style={[styles.button, {marginLeft: .2, backgroundColor: '#ff8834'}]}
+                                onPress={() => this.props.navigation.navigate("EarningDriver", {out_semana: this.state.out_semana, id_usuario: this.state.id_usuario, nombre_propietario: this.state.nombre_propietario})}>
+                                    {
+                                        this.state.fontLoaded ? (
+                                            <Text style={{ fontFamily: 'Aller_Lt', fontSize: 10}}>Socio Conductor</Text>
+                                        ): null
+                                    }
                                 </TouchableOpacity>
                             </View>
                         </View>
 
-                        <Divider style={styles.row}></Divider>
-
-                        <TouchableOpacity onPress={() => this.props.navigation.navigate("RealTimeReport")}>
-                            <View style={{ height: 90 }}>
-                                <View style={{ padding: 5, flexDirection: 'row', justifyContent: 'flex-start'}}>
-                                    <Text style={{ fontSize: 18, paddingHorizontal: 5  }}>Manuel Leyva</Text>
-                                    <Icon
-                                        name='chevron-right'
-                                        size={18}
-                                        style= {{
-                                            paddingTop: 5
-                                        }}
-                                    />
-                                </View>
-                                <View style={{ paddingTop: 5, flexDirection: 'row', justifyContent: 'space-evenly'}}>
-                                    <Text style={{ color: 'blue', fontSize: 16}}>$3000.00MXN</Text>
-                                    <Text style={{fontSize: 14}}>$600.00MXN</Text>
-                                    <Text style={{fontSize: 14}}>90</Text>
-                                </View>
-                                <View style={{ paddingBottom: 5, marginLeft: 8, flexDirection: 'row', justifyContent: 'space-evenly'}}>
-                                    <Text style={{ color: 'blue', fontSize: 15}}>Ganancia semanal</Text>
-                                    <Text style={{fontSize: 12}}>Ganancia actual</Text>
-                                    <Text style={{fontSize: 12}}>Viajes</Text>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-
-                        <Divider style={styles.row}></Divider>
-
-                        <TouchableOpacity onPress={() => this.props.navigation.navigate("RealTimeReport")}>
-                            <View style={{ height: 90 }}>
-                                <View style={{ padding: 5, flexDirection: 'row', justifyContent: 'flex-start'}}>
-                                    <Text style={{ fontSize: 18, paddingHorizontal: 5  }}>Leonel Ortega</Text>
-                                    <Icon
-                                        name='chevron-right'
-                                        size={18}
-                                        style= {{
-                                            paddingTop: 5
-                                        }}
-                                    />
-                                </View>
-                                <View style={{ paddingTop: 5, flexDirection: 'row', justifyContent: 'space-evenly'}}>
-                                    <Text style={{ color: 'blue', fontSize: 16}}>$2100.00MXN</Text>
-                                    <Text style={{fontSize: 14}}>$1100.00MXN</Text>
-                                    <Text style={{fontSize: 14}}>76</Text>
-                                </View>
-                                <View style={{ paddingBottom: 5, marginLeft: 8, flexDirection: 'row', justifyContent: 'space-evenly'}}>
-                                    <Text style={{ color: 'blue', fontSize: 15}}>Ganancia semanal</Text>
-                                    <Text style={{fontSize: 12}}>Ganancia actual</Text>
-                                    <Text style={{fontSize: 12}}>Viajes</Text>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-
-                        <Divider style={styles.row}></Divider>
-
-                        <TouchableOpacity onPress={() => this.props.navigation.navigate("RealTimeReport")}>
-                            <View style={{ height: 90 }}>
-                                <View style={{ padding: 5, flexDirection: 'row', justifyContent: 'flex-start'}}>
-                                    <Text style={{ fontSize: 18, paddingHorizontal: 5  }}>Jesús Mendoza</Text>
-                                    <Icon
-                                        name='chevron-right'
-                                        size={18}
-                                        style= {{
-                                            paddingTop: 5
-                                        }}
-                                    />
-                                </View>
-                                <View style={{ paddingTop: 5, flexDirection: 'row', justifyContent: 'space-evenly'}}>
-                                    <Text style={{ color: 'blue', fontSize: 16}}>$1200.00 MXN</Text>
-                                    <Text style={{fontSize: 14}}>$700.00 MXN</Text>
-                                    <Text style={{fontSize: 14}}>50</Text>
-                                </View>
-                                <View style={{ paddingBottom: 5, marginLeft: 8, flexDirection: 'row', justifyContent: 'space-evenly'}}>
-                                    <Text style={{ color: 'blue', fontSize: 15}}>Ganancia semanal</Text>
-                                    <Text style={{fontSize: 12}}>Ganancia actual</Text>
-                                    <Text style={{fontSize: 12}}>Viajes</Text>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-
-                        <Divider style={styles.row}></Divider>
+                        { this.state.validateWS ? this.state.obj_items : this.setInfoWS() }
 
                     </View>
                 </ScrollView>
@@ -312,8 +593,13 @@ export default class HomeScreen extends React.Component {
                             <Icon
                                 name='home'
                                 size={45}
+                                style={{color: '#ec6a2c'}}
                             />
-                            <Text style={{ fontSize: 12 }}>Inicio</Text>
+                            {
+                                this.state.fontLoaded ? (
+                                    <Text style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>Inicio</Text>
+                                ) : null
+                            }
                         </View>
                     </TouchableOpacity>
 
@@ -326,8 +612,15 @@ export default class HomeScreen extends React.Component {
                             <Icon
                                 name='car-side'
                                 size={45}
+                                style={{color: '#ec6a2c'}}
                             />
-                            <Text style={{ fontSize: 12 }}>Conductores</Text>
+                            {
+                                this.state.fontLoaded ? (
+                                    <Text style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>
+                                    Conductores
+                                    </Text>
+                                ) : null
+                            }
                         </View>
                     </TouchableOpacity>
 
@@ -340,8 +633,15 @@ export default class HomeScreen extends React.Component {
                             <Icon
                                 name='car'
                                 size={45}
+                                style={{color: '#ec6a2c'}}
                             />
-                            <Text style={{ fontSize: 12 }}>Vehículos</Text>
+                            {
+                                this.state.fontLoaded ? (
+                                    <Text style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>
+                                    Vehículos
+                                    </Text>
+                                ) : null
+                            }
                         </View>
                     </TouchableOpacity>
 
@@ -354,8 +654,15 @@ export default class HomeScreen extends React.Component {
                             <Icon
                                 name='user'
                                 size={45}
+                                style={{color: '#ec6a2c'}}
                             />
-                            <Text style={{ fontSize: 12 }}>Mi perfil</Text>
+                            {
+                                this.state.fontLoaded ? (
+                                    <Text style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>
+                                    Mi perfil
+                                    </Text>
+                                ) : null
+                            }
                         </View>
                     </TouchableOpacity>
 
@@ -368,8 +675,16 @@ export default class HomeScreen extends React.Component {
                             <Icon
                                 name='chart-pie'
                                 size={45}
+                                style={{color: '#ec6a2c'}}
                             />
-                            <Text style={{ fontSize: 12 }}>Gestión</Text>
+                            {
+                                this.state.fontLoaded ? (
+                                    <Text style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>
+                                    Gestión
+                                    </Text>
+                                ) : null
+                            }
+
                         </View>
                     </TouchableOpacity>
 
@@ -381,12 +696,6 @@ export default class HomeScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: '#000',
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
     row: {
         height: 5,
         backgroundColor: "#f0f4f7"

@@ -3,11 +3,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from "react-native-vector-icons/FontAwesome5";
+import * as Font from 'expo-font';
 
 export default class TopTemplate extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            fontLoaded: false,
+        };
     }
 
     test = () => {
@@ -17,6 +20,14 @@ export default class TopTemplate extends React.Component {
     static navigationOptions = {
         title: 'Inicio'
     };
+
+    async componentDidMount(){
+        await Font.loadAsync({
+            'Aller_Lt': require('./../assets/fonts/Aller_Lt.ttf'),
+        });
+
+        this.setState({fontLoaded: true});
+    }
 
     render() {
         return (
@@ -40,8 +51,13 @@ export default class TopTemplate extends React.Component {
                         <Icon
                             name='home'
                             size={45}
+                            style={{color: '#ec6a2c'}}
                         />
-                        <Text style={{ fontSize: 12 }}>Inicio</Text>
+                        {
+                            this.state.fontLoaded ? (
+                                <Text style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>Inicio</Text>
+                            ): null
+                        }
                     </View>
                 </TouchableOpacity>
 
@@ -54,8 +70,13 @@ export default class TopTemplate extends React.Component {
                         <Icon
                             name='car-side'
                             size={45}
+                            style={{color: '#ec6a2c'}}
                         />
-                        <Text style={{ fontSize: 12 }}>Conductores</Text>
+                        {
+                            this.state.fontLoaded ? (
+                                <Text style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>Conductores</Text>
+                            ): null
+                        }
                     </View>
                 </TouchableOpacity>
 
@@ -68,8 +89,13 @@ export default class TopTemplate extends React.Component {
                         <Icon
                             name='car'
                             size={45}
+                            style={{color: '#ec6a2c'}}
                         />
-                        <Text style={{ fontSize: 12 }}>Vehículos</Text>
+                        {
+                            this.state.fontLoaded ? (
+                                <Text style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>Vehículos</Text>
+                            ): null
+                        }
                     </View>
                 </TouchableOpacity>
 
@@ -82,8 +108,13 @@ export default class TopTemplate extends React.Component {
                         <Icon
                             name='user'
                             size={45}
+                            style={{color: '#ec6a2c'}}
                         />
-                        <Text style={{ fontSize: 12 }}>Mi perfil</Text>
+                        {
+                            this.state.fontLoaded ? (
+                                <Text style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>Mi perfil</Text>
+                            ): null
+                        }
                     </View>
                 </TouchableOpacity>
 
@@ -96,8 +127,13 @@ export default class TopTemplate extends React.Component {
                         <Icon
                             name='chart-pie'
                             size={45}
+                            style={{color: '#ec6a2c'}}
                         />
-                        <Text style={{ fontSize: 12 }}>Gestión</Text>
+                        {
+                            this.state.fontLoaded ? (
+                                <Text style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>Gestión</Text>
+                            ): null
+                        }
                     </View>
                 </TouchableOpacity>
 
@@ -108,12 +144,6 @@ export default class TopTemplate extends React.Component {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: '#000',
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
     row: {
         height: 5,
         backgroundColor: "#f0f4f7"

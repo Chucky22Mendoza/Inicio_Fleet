@@ -32,6 +32,7 @@ export default class TopTemplate extends React.Component {
                             size={40}
                             onPress={this.test}
                             style={{
+                                color: '#ff8834',
                                 marginRight: 5
                             }}
                         />
