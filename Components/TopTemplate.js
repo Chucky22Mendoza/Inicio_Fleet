@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import Icon from "react-native-vector-icons/FontAwesome5";
 
 export default class TopTemplate extends React.Component {

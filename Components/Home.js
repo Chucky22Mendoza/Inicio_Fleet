@@ -28,6 +28,7 @@ export default class HomeScreen extends React.Component {
             out_semana: "00/00 - 00/00",
             nombre_propietario: '',
             fontLoaded: false,
+            fecha_actual: '',
         };
         this.onDateChange = this.onDateChange.bind(this);
     }
@@ -48,9 +49,30 @@ export default class HomeScreen extends React.Component {
 
         await Font.loadAsync({
             'Aller_Lt': require('./../assets/fonts/Aller_Lt.ttf'),
+            'Aller_Bd': require('./../assets/fonts/Aller_Bd.ttf'),
         });
 
         this.setState({fontLoaded: true});
+
+        let date, day, month, year, fecha;
+        date = new Date();
+
+        day = date.getDate();
+        month = date.getMonth() + 1;
+        year = date.getFullYear();
+
+        if(day.toString().length == 1 ){
+            day = '0' + day;
+        }
+
+        if(month.toString().length == 1 ){
+            month = '0' + month;
+        }
+
+        fecha = day + "/" + month + "/" + year;
+        this.setState({
+            fecha_actual: fecha
+        });
 
         try{
 
@@ -69,8 +91,7 @@ export default class HomeScreen extends React.Component {
                 month = '0' + month;
             }
 
-            //fecha =  year + "-" + month + "-" + day;
-            fecha = '2019-09-12';
+            fecha =  year + "-" + month + "-" + day;
 
             const res = await axios.post('http://34.95.33.177:3001/inicio_fleet/interfaz_42/fleet_home', {
                 id_usuario: this.state.id_usuario,
@@ -381,16 +402,16 @@ export default class HomeScreen extends React.Component {
                 <ScrollView style={{marginBottom: 75}}>
                     <View>
                         <TopTemplate></TopTemplate>
-                        <Icon
-                            name='circle'
-                            size={45}
-                            onPress={this.test}
+                        <Image
                             style={{
+                                width: 45,
+                                height: 45,
+                                resizeMode: 'cover',
                                 paddingLeft: 5,
-                                paddingTop: 10,
+                                marginTop: 5,
                                 position: 'absolute',
-                                color: '#ff8834'
                             }}
+                            source={require('./../assets/logo/Yimi.png')}
                         />
 
                         <View
@@ -476,6 +497,25 @@ export default class HomeScreen extends React.Component {
                                         </View>
                                     </View>
                                 </Modal>
+                            </View>
+
+                        </View>
+
+                        <Divider style={styles.row}></Divider>
+
+                        <View style={{
+                            height: 25,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: 5
+                        }}>
+
+                            <View>
+                                {
+                                    this.state.fontLoaded ? (
+                                        <Text style={{ fontFamily: 'Aller_Lt' }}>{this.state.fecha_actual}</Text>
+                                    ) : null
+                                }
                             </View>
 
                         </View>

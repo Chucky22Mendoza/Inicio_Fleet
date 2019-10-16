@@ -11,9 +11,9 @@
     ],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/logo/Yimi_degrado_completo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

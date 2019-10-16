@@ -39,6 +39,7 @@ export default class EarningNoDriverScreen extends React.Component {
     async componentDidMount(){
         await Font.loadAsync({
             'Aller_Lt': require('./../assets/fonts/Aller_Lt.ttf'),
+            'Aller_Bd': require('./../assets/fonts/Aller_Bd.ttf'),
         });
 
         this.setState({fontLoaded: true});
@@ -132,7 +133,7 @@ export default class EarningNoDriverScreen extends React.Component {
                                         <Text style={{fontFamily: 'Aller_Lt',  fontSize: 18 }}>{this.state.nombre}</Text>
                                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                             <Text style={{ fontFamily: 'Aller_Lt', fontSize: 18, marginTop: 5, paddingRight: 60 }}>Ganancia actual</Text>
-                                            <Text style={{ fontFamily: 'Aller_Lt', fontSize: 18, marginTop: 5, color: 'blue', fontWeight: 'bold' }}>${this.state.ganancia_actual}mxn</Text>
+                                            <Text style={{ fontFamily: 'Aller_Bd', fontSize: 18, marginTop: 5, color: 'blue' }}>${this.state.ganancia_actual}mxn</Text>
                                         </View>
                                     </View>
                                     ) : null

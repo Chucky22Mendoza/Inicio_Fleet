@@ -180,7 +180,7 @@ export default class EarningNoDriverScreen extends React.Component {
                                 {
                                     this.state.fontLoaded ? (
                                         <View>
-                                            <Text style={{ fontFamily: 'Aller_Lt', fontSize: 18 }}>{this.state.nombre_propietario}</Text>
+                                            <Text style={{ fontFamily: 'Aller_Lt', fontSize: 18, textAlign: 'center' }}>{this.state.nombre_propietario}</Text>
                                             <Text style={{ fontFamily: 'Aller_Lt', fontSize: 15, marginTop: 5 }}>Ganancia semana</Text>
                                         </View>
                                     ) : null
