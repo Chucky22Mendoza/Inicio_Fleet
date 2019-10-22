@@ -30,6 +30,7 @@ export default class EarningDriverScreen extends React.Component {
             out_adeudo_socio_efec: '0.00',
             adeudo_total: '0.00',
             fontLoaded: false,
+            fecha_actual: '',
         };
     }
 
@@ -44,9 +45,31 @@ export default class EarningDriverScreen extends React.Component {
     async componentDidMount(){
         await Font.loadAsync({
             'Aller_Lt': require('./../assets/fonts/Aller_Lt.ttf'),
+            'Aller_Bd': require('./../assets/fonts/Aller_Bd.ttf'),
         });
 
         this.setState({fontLoaded: true});
+
+        let date, day, month, year, fecha;
+        date = new Date();
+
+        day = date.getDate();
+        month = date.getMonth() + 1;
+        year = date.getFullYear();
+
+        if(day.toString().length == 1 ){
+            day = '0' + day;
+        }
+
+        if(month.toString().length == 1 ){
+            month = '0' + month;
+        }
+
+        fecha = day + "/" + month + "/" + year;
+        this.setState({
+            fecha_actual: fecha
+        });
+
 
         try{
             const res = await axios.post('http://34.95.33.177:3001/inicio_fleet/interfaz_124/socio_conductor', {
@@ -101,7 +124,7 @@ export default class EarningDriverScreen extends React.Component {
             });
         }catch(e){
             console.log(e);
-            alert("No hay conexión al web service", "Error");
+            alert("Servicio no disponible, intente más tarde", "Error");
         }
     }
 
@@ -209,7 +232,7 @@ export default class EarningDriverScreen extends React.Component {
                             }}>
                                 {
                                     this.state.fontLoaded ? (
-                                        <Text style={{ fontFamily: 'Aller_Lt', fontSize: 15 }}>${this.state.efectivo_gan} MXN</Text>
+                                        <Text style={{ fontFamily: 'Aller_Lt', fontSize: 15 }}>${this.state.efectivo_gan}mxn</Text>
                                     ) : null
                                 }
                             </View>
@@ -239,7 +262,7 @@ export default class EarningDriverScreen extends React.Component {
                             }}>
                                 {
                                     this.state.fontLoaded ? (
-                                        <Text style={{ fontFamily: 'Aller_Lt', fontSize: 15 }}>${this.state.tarjeta_gan} MXN</Text>
+                                        <Text style={{ fontFamily: 'Aller_Lt', fontSize: 15 }}>${this.state.tarjeta_gan}mxn</Text>
                                     ) : null
                                 }
                             </View>
@@ -269,7 +292,7 @@ export default class EarningDriverScreen extends React.Component {
                             }}>
                                 {
                                     this.state.fontLoaded ? (
-                                        <Text style={{ fontFamily: 'Aller_Lt', fontSize: 15 }}>${this.state.externo_gan} MXN</Text>
+                                        <Text style={{ fontFamily: 'Aller_Lt', fontSize: 15 }}>${this.state.externo_gan}mxn</Text>
                                     ) : null
                                 }
                             </View>
@@ -299,7 +322,7 @@ export default class EarningDriverScreen extends React.Component {
                             }}>
                                 {
                                     this.state.fontLoaded ? (
-                                        <Text style={{ fontFamily: 'Aller_Lt', fontSize: 15 }}>${this.state.cuota_plat_r} MXN</Text>
+                                        <Text style={{ fontFamily: 'Aller_Lt', fontSize: 15 }}>${this.state.cuota_plat_r}mxn</Text>
                                     ) : null
                                 }
                             </View>
@@ -329,7 +352,27 @@ export default class EarningDriverScreen extends React.Component {
                             }}>
                                 {
                                     this.state.fontLoaded ? (
-                                        <Text style={{ fontFamily: 'Aller_Lt', fontSize: 18 }}>${this.state.ganancia_final} MXN</Text>
+                                        <Text style={{ fontFamily: 'Aller_Lt', fontSize: 18 }}>${this.state.ganancia_final}mxn</Text>
+                                    ) : null
+                                }
+                            </View>
+
+                        </View>
+
+                        <Divider style={styles.row}></Divider>
+
+                        <View style={{
+                            height: 25,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: 5,
+                            backgroundColor: '#979898'
+                        }}>
+
+                            <View>
+                                {
+                                    this.state.fontLoaded ? (
+                                        <Text style={{ fontFamily: 'Aller_Lt' }}>{this.state.fecha_actual}</Text>
                                     ) : null
                                 }
                             </View>
@@ -378,15 +421,27 @@ export default class EarningDriverScreen extends React.Component {
                         <View style={{
                             height: 25,
                             alignItems: 'center',
-                            justifyContent: 'center',
+                            justifyContent: 'space-between',
                             flexDirection: 'row',
                             padding: 5
                         }}>
-                            {
-                                this.state.fontLoaded ? (
-                                    <Text style={{ fontFamily: 'Aller_Lt', fontSize: 15 }}>Adeudos por cobros con efectivo</Text>
-                                ) : null
-                            }
+
+                            <View>
+                                {
+                                    this.state.fontLoaded ? (
+                                        <Text style={{ fontFamily: 'Aller_Lt', }}>Ganancias del día</Text>
+                                    ) : null
+                                }
+                            </View>
+
+                            <View>
+                                {
+                                    this.state.fontLoaded ? (
+                                        <Text style={{ fontFamily: 'Aller_Bd', fontSize: 16 }}>${this.state.total_gan_dia}mxn</Text>
+                                    ) : null
+                                }
+                            </View>
+
                         </View>
 
                         <Divider style={styles.row}></Divider>
@@ -395,14 +450,65 @@ export default class EarningDriverScreen extends React.Component {
                             height: 25,
                             alignItems: 'center',
                             justifyContent: 'center',
-                            flexDirection: 'row',
-                            padding: 5
+                            padding: 5,
+                            backgroundColor: '#979898'
                         }}>
-                            {
-                                this.state.fontLoaded ? (
-                                    <Text style={{ fontFamily: 'Aller_Lt', fontSize: 20 }}>${this.state.out_adeudo_plataforma_efec}MXN</Text>
-                                ) : null
-                            }
+
+                            <View>
+                                {
+                                    this.state.fontLoaded ? (
+                                        <Text style={{ fontFamily: 'Aller_Lt' }}>Adeudos por cobros en efecivo</Text>
+                                    ) : null
+                                }
+                            </View>
+
+                        </View>
+
+                        <Divider style={styles.row}></Divider>
+
+                        <View style={{
+                            height: 40,
+                            width: 400,
+                            justifyContent: 'space-evenly',
+                            flexDirection: 'row'
+                        }}>
+
+                            <View style={{
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginLeft: 40,
+                                width: 200
+                            }}>
+                                {
+                                    this.state.fontLoaded ? (
+                                        <Text style={{ fontFamily: 'Aller_Lt', }}>${this.state.out_adeudo_plataforma_efec}mxn</Text>
+                                    ) : null
+                                }
+                                {
+                                    this.state.fontLoaded ? (
+                                        <Text style={{ fontFamily: 'Aller_Lt', }}>Cuota de servicio YiMi</Text>
+                                    ) : null
+                                }
+                            </View>
+
+                            <View style={{
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginRight: 80,
+                                width: 200
+                            }}>
+                                {
+                                    this.state.fontLoaded ? (
+                                        <Text style={{ fontFamily: 'Aller_Lt', }}>${this.state.out_adeudo_socio_efec}mxn</Text>
+                                    ) : null
+                                }
+                                {
+                                    this.state.fontLoaded ? (
+                                        <Text style={{ fontFamily: 'Aller_Lt', }}>Cuota de socio</Text>
+                                    ) : null
+                                }
+                            </View>
+
                         </View>
 
                         <Divider style={styles.row}></Divider>

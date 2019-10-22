@@ -60,7 +60,7 @@ export default class EarningNoDriverScreen extends React.Component {
 
         }catch(e){
             console.log(e);
-            alert("No hay conexión al web service", "Error");
+            alert("Servicio no disponible, intente más tarde", "Error");
             this.setState({
                 validateWS: false
             });
@@ -85,12 +85,13 @@ export default class EarningNoDriverScreen extends React.Component {
         });
 
         //tableHead: ['Total', 'Efectivo', 'Tarjeta', 'Comisión', 'Ganancia fin'],
-        let obj_final = [obj_aux[0].out_total, obj_aux[0].out_efectivo, obj_aux[0].out_tarjeta, obj_aux[0].out_comision, obj_aux[0].out_ganancia_final]
+        let obj_final = ['$ ' + obj_aux[0].out_total + ' MXN', '$ ' + obj_aux[0].out_efectivo + ' MXN', '$ ' + obj_aux[0].out_tarjeta + ' MXN', '$ ' + obj_aux[0].out_comision + ' MXN', '$ ' + obj_aux[0].out_ganancia_final + ' MXN'];
         this.setState({
             tableData: [obj_final]
         });
 
         let obj_items_aux = [];
+
         obj_items_aux.push(<Rows key={"row_data"} data={this.state.tableData} textStyle={styles.text} />);
         this.setState({
             obj_items: obj_items_aux

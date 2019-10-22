@@ -28,7 +28,6 @@ export default class HomeScreen extends React.Component {
             out_semana: "00/00 - 00/00",
             nombre_propietario: '',
             fontLoaded: false,
-            fecha_actual: '',
         };
         this.onDateChange = this.onDateChange.bind(this);
     }
@@ -53,26 +52,6 @@ export default class HomeScreen extends React.Component {
         });
 
         this.setState({fontLoaded: true});
-
-        let date, day, month, year, fecha;
-        date = new Date();
-
-        day = date.getDate();
-        month = date.getMonth() + 1;
-        year = date.getFullYear();
-
-        if(day.toString().length == 1 ){
-            day = '0' + day;
-        }
-
-        if(month.toString().length == 1 ){
-            month = '0' + month;
-        }
-
-        fecha = day + "/" + month + "/" + year;
-        this.setState({
-            fecha_actual: fecha
-        });
 
         try{
 
@@ -109,7 +88,7 @@ export default class HomeScreen extends React.Component {
 
         }catch(e){
             console.log(e);
-            alert("No hay conexión al web service", "Error");
+            alert("Servicio no disponible, intente más tarde", "Error");
             this.setState({
                 validateWS: false
             });
@@ -298,7 +277,7 @@ export default class HomeScreen extends React.Component {
 
         }catch(e){
             console.log(e);
-            alert("No hay conexión al web service", "Error");
+            alert("Servicio no disponible, intente más tarde", "Error");
             this.setState({
                 validateWS: false
             });
@@ -497,25 +476,6 @@ export default class HomeScreen extends React.Component {
                                         </View>
                                     </View>
                                 </Modal>
-                            </View>
-
-                        </View>
-
-                        <Divider style={styles.row}></Divider>
-
-                        <View style={{
-                            height: 25,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: 5
-                        }}>
-
-                            <View>
-                                {
-                                    this.state.fontLoaded ? (
-                                        <Text style={{ fontFamily: 'Aller_Lt' }}>{this.state.fecha_actual}</Text>
-                                    ) : null
-                                }
                             </View>
 
                         </View>
