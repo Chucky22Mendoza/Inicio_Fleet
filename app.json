@@ -28,6 +28,8 @@
     },
     "android": {
       "package": "com.kiotrack.Fleet"
-    }
+    },
+    "description": "Nueva dirección IP",
+    "githubUrl": "https://github.com/Chucky22Mendoza/Inicio_Fleet"
   }
 }

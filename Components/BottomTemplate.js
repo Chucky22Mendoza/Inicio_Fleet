@@ -1,34 +1,81 @@
 // In App.js in a new project
 
+/**
+ *
+ * BOTTOMTEMPLATE es un componente utilizado para la parte superior de la aplicación
+ * Este aún no ha sido implementado en la aplicación, pero será de utilidad cuando
+ * se requiera integrar la aplicación completa
+ *
+ **/
+
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from "react-native-vector-icons/FontAwesome5";
 import * as Font from 'expo-font';
 
+/**
+ *
+ *
+ * @export
+ * @class TopTemplate
+ * @extends {React.Component}
+ */
 export default class TopTemplate extends React.Component {
+    /**
+     *Creates an instance of TopTemplate.
+     * @param {*} props
+     * @memberof TopTemplate
+     */
     constructor(props) {
         super(props);
         this.state = {
-            fontLoaded: false,
+            fontLoaded: false,  //Variable para comprobar el cargado de fuentes
         };
     }
 
+    /**
+     *
+     *
+     * @memberof WalletScreen
+     *
+     * Método para comprobar el funcionamiento de botones/iconos
+     *
+     */
     test = () => {
         alert("This is a test", "Hola");
     };
 
+    /**
+     *
+     *
+     * @static
+     * @memberof TopTemplate
+     */
     static navigationOptions = {
         title: 'Inicio'
     };
 
+    /**
+     *
+     *
+     * @memberof TopTemplate
+     */
     async componentDidMount(){
+        //cargar fuentes
         await Font.loadAsync({
             'Aller_Lt': require('./../assets/fonts/Aller_Lt.ttf'),
         });
 
+        //Variable de carga de fuentes
         this.setState({fontLoaded: true});
     }
 
+    /**
+     *
+     *
+     * @returns
+     * @memberof TopTemplate
+     */
     render() {
         return (
             <View style={{
@@ -143,6 +190,7 @@ export default class TopTemplate extends React.Component {
     }
 }
 
+//Estilos de diseño defenidos
 const styles = StyleSheet.create({
     row: {
         height: 5,

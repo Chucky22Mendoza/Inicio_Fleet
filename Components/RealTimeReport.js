@@ -10,16 +10,30 @@ import * as Font from 'expo-font';
 import TopTemplate from './TopTemplate';
 //import BottomTemplate from './BottomTemplate';
 
-
+/**
+ *
+ *
+ * @export
+ * @class EarningNoDriverScreen
+ * @extends {React.Component}
+ */
 export default class EarningNoDriverScreen extends React.Component {
+    /**
+     *Creates an instance of EarningNoDriverScreen.
+     * @param {*} props
+     * @memberof EarningNoDriverScreen
+     */
     constructor(props) {
         super(props);
         this.state = {
+            //Cabecera de la tabla
             tableHead: ['Total', 'Efectivo', 'Tarjeta', 'Comisión', 'Ganancia fin'],
+            //Variable dinámica que contiene el cuerpo de la tabla
             tableData: [],
-            id_usuario: this.props.navigation.state.params.id_chofer,
-            nombre: this.props.navigation.state.params.nombre,
-            ganancia_actual: this.props.navigation.state.params.ganancia_actual,
+            id_usuario: this.props.navigation.state.params.id_chofer, //id del usuario definido por el inicio de sesión
+            nombre: this.props.navigation.state.params.nombre, //Obtenido de la pantalla anterior
+            ganancia_actual: this.props.navigation.state.params.ganancia_actual, //Obtenido de la pantalla anterior
+            //Variables dinámicas de la aplicación
             obj_aux_final: [],
             validateWS: false,
             objChofer: [],
@@ -28,14 +42,41 @@ export default class EarningNoDriverScreen extends React.Component {
         };
     }
 
+    /**
+     *
+     *
+     * @memberof EarningNoDriverScreen
+     *
+     * Método para comprobar el funcionamiento de botones/iconos
+     */
     test = () => {
         alert("This is a test", "Hola");
     };
 
+    /**
+     *
+     *
+     * @static
+     * @memberof EarningNoDriverScreen
+     */
     static navigationOptions = {
         title: 'Reporte en tiempo real'
     };
 
+    /**
+     *
+     *
+     * @memberof EarningNoDriverScreen
+     */
+    async componentWillMount(){
+        this.principal_body(); //Llamada al método principal que contiene el tratamiento de datos y componentes dinámicos
+    }
+
+    /**
+     *
+     *
+     * @memberof EarningNoDriverScreen
+     */
     async componentDidMount(){
         await Font.loadAsync({
             'Aller_Lt': require('./../assets/fonts/Aller_Lt.ttf'),
@@ -43,30 +84,56 @@ export default class EarningNoDriverScreen extends React.Component {
         });
 
         this.setState({fontLoaded: true});
+    }
+
+    /**
+     *
+     *
+     * @memberof EarningNoDriverScreen
+     */
+    principal_body = async () => {
         try{
 
-            const res = await axios.post('http://34.95.33.177:3001/inicio_fleet/interfaz_121/tiempo_real', {
+            const res = await axios.post('http://35.203.42.33:3001/inicio_fleet/interfaz_121/tiempo_real', {
                 id_usuario: this.state.id_usuario
             });
 
-            //console.log(res);
-            const obj = res.data.datos;
-            this.setState({
-                objChofer: obj,
-                validateWS: true
-            });
+            if(res.status == 200){
+                //console.log(res);
+                const obj = res.data.datos;
+                this.setState({
+                    objChofer: obj,
+                    validateWS: true
+                });
 
-            this.objToChofer();
+                this.objToChofer();
+            }else{
+                alert("Servicio no disponible, intente más tarde", "Error");
+                this.setState({
+                    validateWS: false
+                });
+            }
 
-        }catch(e){
-            console.log(e);
-            alert("Servicio no disponible, intente más tarde", "Error");
+        }catch(error){
+            //Error de conexión
+            if(error.message == 'Network Error'){
+                alert("Verifique su conexión e intente nuevamente", "Error");
+            }else{
+                alert("Servicio no disponible, intente más tarde", "Error");
+            }
+
+            console.log(error);
             this.setState({
                 validateWS: false
             });
         }
     }
 
+    /**
+     *
+     *
+     * @memberof EarningNoDriverScreen
+     */
     objToChofer = () => {
         const obj_chofer = this.state.objChofer;
         const obj_aux = [];
@@ -99,6 +166,12 @@ export default class EarningNoDriverScreen extends React.Component {
 
     }
 
+    /**
+     *
+     *
+     * @returns
+     * @memberof EarningNoDriverScreen
+     */
     render() {
         return (
             <View>
@@ -273,6 +346,7 @@ export default class EarningNoDriverScreen extends React.Component {
     }
 }
 
+//Estilos de diseño defenidos
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#000',

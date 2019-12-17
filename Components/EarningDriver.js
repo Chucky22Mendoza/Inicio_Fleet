@@ -1,5 +1,4 @@
 // In App.js in a new project
-
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Icon from "react-native-vector-icons/FontAwesome5";
@@ -9,14 +8,27 @@ import TopTemplate from './TopTemplate';
 import * as Font from 'expo-font';
 //import BottomTemplate from './BottomTemplate';
 
-
+/**
+ *
+ *
+ * @export
+ * @class EarningDriverScreen
+ * @extends {React.Component}
+ */
 export default class EarningDriverScreen extends React.Component {
+    /**
+     *Creates an instance of EarningDriverScreen.
+     * @param {*} props
+     * @memberof EarningDriverScreen
+     */
     constructor(props) {
         super(props);
+        //Variables necesarias para la dinámica de la app
         this.state = {
-            id_usuario: this.props.navigation.state.params.id_usuario,
-            rango_fechas: this.props.navigation.state.params.out_semana,
-            nombre_propietario: this.props.navigation.state.params.nombre_propietario,
+            id_usuario: this.props.navigation.state.params.id_usuario, //id del usuario definido por el inicio de sesión
+            rango_fechas: this.props.navigation.state.params.out_semana, //Obtenido de la pantalla anterior
+            nombre_propietario: this.props.navigation.state.params.nombre_propietario, //Obtenido de la pantalla anterior
+            //Variables dinámicas
             tarjeta_gan: '0.00',
             efectivo_gan: '0.00',
             externo_gan: '0.00',
@@ -29,19 +41,53 @@ export default class EarningDriverScreen extends React.Component {
             out_adeudo_plataforma_efec: '0.00',
             out_adeudo_socio_efec: '0.00',
             adeudo_total: '0.00',
-            fontLoaded: false,
-            fecha_actual: '',
+            fontLoaded: false, //Cargado de fuentes
+            fecha_actual: '',  //Calculado al iniciar la app
         };
     }
 
+    /**
+     *
+     *
+     * @memberof WalletScreen
+     *
+     * Método para comprobar el funcionamiento de botones/iconos
+     *
+     */
     test = () => {
         alert("This is a test", "Hola");
     };
 
+    /**
+     *
+     *
+     * @static
+     * @memberof EarningDriverScreen
+     */
     static navigationOptions = {
         title: 'Mis ganancias Socio-Conductor'
     };
 
+    /**
+     *
+     *
+     * @memberof EarningDriverScreen
+     *
+     * Método que ejecuta las peticiones de datos al WS antes de renderizar la vista
+     *
+     */
+    async componentWillMount(){
+        this.principal_body(); //Llamada al método principal que contiene el tratamiento de datos y componentes dinámicos
+    }
+
+    /**
+     *
+     *
+     * @memberof EarningDriverScreen
+     *
+     * Método que se ejecuta después de renderizar la vista; el cual carga las fuentes requeridas
+     *
+     */
     async componentDidMount(){
         await Font.loadAsync({
             'Aller_Lt': require('./../assets/fonts/Aller_Lt.ttf'),
@@ -49,86 +95,132 @@ export default class EarningDriverScreen extends React.Component {
         });
 
         this.setState({fontLoaded: true});
+    }
+
+    /**
+     *
+     *
+     * @memberof EarningDriverScreen
+     *
+     * Método que contiene el tratamiento de datos y componentes dinámicos, al igual que las peticiones al WS
+     *
+     */
+    principal_body = async () =>{
+        /******* Calcular fecha actual formateada ******/
 
         let date, day, month, year, fecha;
-        date = new Date();
+        date = new Date(); //Generar objeto de una nueva fecha
 
-        day = date.getDate();
-        month = date.getMonth() + 1;
-        year = date.getFullYear();
+        day = date.getDate();  //Obtener el día actual, formato 'DD'
+        month = date.getMonth() + 1; //Mes actual, se suma uno por su inicializción como objeto en 0, formata 'MM'
+        year = date.getFullYear(); //Obtener el año actual en formato 'YYYY'
 
         if(day.toString().length == 1 ){
-            day = '0' + day;
+            day = '0' + day; //Tratamiento del formato del día
         }
 
         if(month.toString().length == 1 ){
-            month = '0' + month;
+            month = '0' + month; //tratamiento del formato del mes
         }
 
-        fecha = day + "/" + month + "/" + year;
+        fecha = day + "/" + month + "/" + year; //Formato completo de la fecha actual: 'DD/mm/YYYY'
         this.setState({
-            fecha_actual: fecha
+            fecha_actual: fecha //Actualizar en su variable
         });
 
+        /******* Calcular fecha actual formateada ******/
 
+        //Try-catch para manejar error de conexión
         try{
-            const res = await axios.post('http://34.95.33.177:3001/inicio_fleet/interfaz_124/socio_conductor', {
+            //Variable que contiene los datos de respuesta del WS
+            const res = await axios.post('http://35.203.42.33:3001/inicio_fleet/interfaz_124/socio_conductor', {
                 id_usuario: this.state.id_usuario
-            });
+            });//Se requiere enviar las variables requeridas por el WS en formato JSON
 
-            // handle success
-            let tarjeta_gan, efectivo_gan, externo_gan, total_gan, total_gan_dia, cuota_plat_r, cuota_socio_r, cant_servicios;
+            //Comprobar que la respuesta del WS es correcta
+            if(res.status == 200){
+                //Inicialización de variables necesarias para la reconlacción de los datos
+                let tarjeta_gan, efectivo_gan, externo_gan, total_gan, total_gan_dia, cuota_plat_r, cuota_socio_r, cant_servicios;
 
-            if(res.data.datos[0].encrypt){
-                tarjeta_gan = aes256.decrypt(res.data.datos[0].tarjeta_gan);
-                efectivo_gan = aes256.decrypt(res.data.datos[0].efectivo_gan);
-                externo_gan = aes256.decrypt(res.data.datos[0].externo_gan);
-                total_gan = aes256.decrypt(res.data.datos[0].total_gan);
-                total_gan_dia = aes256.decrypt(res.data.datos[0].total_gan_dia);
-                cuota_plat_r = aes256.decrypt(res.data.datos[0].cuota_plat_r);
-                cuota_socio_r = aes256.decrypt(res.data.datos[0].cuota_socio_r);
-                cant_servicios = aes256.decrypt(res.data.datos[0].cant_servicios);
-                ganancia_final = aes256.decrypt(res.data.datos[0].ganancia_final);
-                out_adeudo_plataforma_efec = aes256.decrypt(res.data.datos[0].out_adeudo_plataforma_efec);
-                out_adeudo_socio_efec = aes256.decrypt(res.data.datos[0].out_adeudo_socio_efec);
-            }else{
-                tarjeta_gan = res.data.datos[0].tarjeta_gan;
-                efectivo_gan = res.data.datos[0].efectivo_gan;
-                externo_gan = res.data.datos[0].externo_gan;
-                total_gan = res.data.datos[0].total_gan;
-                total_gan_dia = res.data.datos[0].total_gan_dia;
-                cuota_plat_r = res.data.datos[0].cuota_plat_r;
-                cuota_socio_r = res.data.datos[0].cuota_socio_r;
-                cant_servicios = res.data.datos[0].cant_servicios;
-                ganancia_final = res.data.datos[0].ganancia_final;
-                out_adeudo_plataforma_efec = res.data.datos[0].out_adeudo_plataforma_efec;
-                out_adeudo_socio_efec = res.data.datos[0].out_adeudo_socio_efec;
+                //Comprobar si la información ha sido encriptada
+                if (res.data.datos[0].encrypt) {
+                    //Desencriptación y asignación a variables de los datos
+                    tarjeta_gan = aes256.decrypt(res.data.datos[0].tarjeta_gan);
+                    efectivo_gan = aes256.decrypt(res.data.datos[0].efectivo_gan);
+                    externo_gan = aes256.decrypt(res.data.datos[0].externo_gan);
+                    total_gan = aes256.decrypt(res.data.datos[0].total_gan);
+                    total_gan_dia = aes256.decrypt(res.data.datos[0].total_gan_dia);
+                    cuota_plat_r = aes256.decrypt(res.data.datos[0].cuota_plat_r);
+                    cuota_socio_r = aes256.decrypt(res.data.datos[0].cuota_socio_r);
+                    cant_servicios = aes256.decrypt(res.data.datos[0].cant_servicios);
+                    ganancia_final = aes256.decrypt(res.data.datos[0].ganancia_final);
+                    out_adeudo_plataforma_efec = aes256.decrypt(res.data.datos[0].out_adeudo_plataforma_efec);
+                    out_adeudo_socio_efec = aes256.decrypt(res.data.datos[0].out_adeudo_socio_efec);
+                } else {
+                    //Asignación a variables de los datos
+                    tarjeta_gan = res.data.datos[0].tarjeta_gan;
+                    efectivo_gan = res.data.datos[0].efectivo_gan;
+                    externo_gan = res.data.datos[0].externo_gan;
+                    total_gan = res.data.datos[0].total_gan;
+                    total_gan_dia = res.data.datos[0].total_gan_dia;
+                    cuota_plat_r = res.data.datos[0].cuota_plat_r;
+                    cuota_socio_r = res.data.datos[0].cuota_socio_r;
+                    cant_servicios = res.data.datos[0].cant_servicios;
+                    ganancia_final = res.data.datos[0].ganancia_final;
+                    out_adeudo_plataforma_efec = res.data.datos[0].out_adeudo_plataforma_efec;
+                    out_adeudo_socio_efec = res.data.datos[0].out_adeudo_socio_efec;
+                }
+
+                let adeudo_total = parseFloat(out_adeudo_plataforma_efec) + parseFloat(out_adeudo_socio_efec);
+                adeudo_total = this.getCentavos(adeudo_total);
+
+                //Actualización de las variables con los datos del WS ya tratados
+                this.setState({
+                    tarjeta_gan: tarjeta_gan,
+                    efectivo_gan: efectivo_gan,
+                    externo_gan: externo_gan,
+                    total_gan: total_gan,
+                    total_gan_dia: total_gan_dia,
+                    cuota_plat: cuota_plat_r,
+                    cuota_socio: cuota_socio_r,
+                    cant_servicios: cant_servicios,
+                    ganancia_final: ganancia_final,
+                    out_adeudo_plataforma_efec: out_adeudo_plataforma_efec,
+                    out_adeudo_socio_efec: out_adeudo_socio_efec,
+                    adeudo_total: adeudo_total
+                });
+            }else{ //Error en el WS
+                alert("Servicio no disponible, intente más tarde", "Error");
+                this.setState({
+                    validateWS: false
+                });
             }
 
-            let adeudo_total = parseFloat(out_adeudo_plataforma_efec) + parseFloat(out_adeudo_socio_efec);
-            adeudo_total = this.getCentavos(adeudo_total);
+        }catch(error){  //Obtención del error
+            //Error de conexión
+            if(error.message == 'Network Error'){
+                alert("Verifique su conexión e intente nuevamente", "Error");
+            }else{
+                alert("Servicio no disponible, intente más tarde", "Error");
+            }
 
+            console.log(error);
             this.setState({
-                tarjeta_gan: tarjeta_gan,
-                efectivo_gan: efectivo_gan,
-                externo_gan: externo_gan,
-                total_gan: total_gan,
-                total_gan_dia: total_gan_dia,
-                cuota_plat: cuota_plat_r,
-                cuota_socio: cuota_socio_r,
-                cant_servicios: cant_servicios,
-                ganancia_final: ganancia_final,
-                out_adeudo_plataforma_efec: out_adeudo_plataforma_efec,
-                out_adeudo_socio_efec: out_adeudo_socio_efec,
-                adeudo_total: adeudo_total
+                validateWS: false
             });
-        }catch(e){
-            console.log(e);
-            alert("Servicio no disponible, intente más tarde", "Error");
         }
     }
 
-    getCentavos = (numberValue) =>{
+    /**
+     *
+     *
+     * @param {*} numberValue
+     * @returns
+     * @memberof EarningDriverScreen
+     *
+     * Método para comprobar o formatear una cadena que contiene el valor monetario
+     */
+    getCentavos(numberValue) {
         if(numberValue == '' || numberValue == null){
             numberValue = 0;
         }
@@ -144,6 +236,12 @@ export default class EarningDriverScreen extends React.Component {
         return outValue;
     }
 
+    /**
+     *
+     *
+     * @returns
+     * @memberof EarningDriverScreen
+     */
     render() {
         return (
             <View>
@@ -628,6 +726,7 @@ export default class EarningDriverScreen extends React.Component {
     }
 }
 
+//Estilos de diseño defenidos
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#000',

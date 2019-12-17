@@ -10,66 +10,134 @@ import TopTemplate from './TopTemplate';
 import * as Font from 'expo-font';
 //import BottomTemplate from './BottomTemplate';
 
-
+/**
+ *
+ *
+ * @export
+ * @class EarningNoDriverScreen
+ * @extends {React.Component}
+ */
 export default class EarningNoDriverScreen extends React.Component {
+    /**
+     *Creates an instance of EarningNoDriverScreen.
+     * @param {*} props
+     * @memberof EarningNoDriverScreen
+     */
     constructor(props) {
         super(props);
         this.state = {
+            //Cabecera de tabla generada
             tableHeadProd: ['Vehículo', 'Comisión'],
-            tableDataTotal: [
-                ['Total', '$5100.00mxn']
-            ],
-            id_usuario: this.props.navigation.state.params.id_usuario,
-            out_semana: this.props.navigation.state.params.out_semana,
-            nombre_propietario: this.props.navigation.state.params.nombre_propietario,
-            obj_aux_final: [],
-            validateWS: false,
-            objChofer: [],
-            obj_items: [],
-            obj_items_2: [],
-            fontLoaded: false,
+            id_usuario: this.props.navigation.state.params.id_usuario, //id del usuario definido por el inicio de sesión
+            out_semana: this.props.navigation.state.params.out_semana, //Obtenido de la pantalla anterior
+            nombre_propietario: this.props.navigation.state.params.nombre_propietario, //Obtenido de la pantalla anterior
+            obj_aux_final: [],  //Objeto final que contiene todas los recursos
+            validateWS: false, //Comprobar que el ws fue consultado correctamente
+            objChofer: [],  //Objeto individual del chofer
+            obj_items: [], //Obtención de los items de diseño
+            obj_items_2: [], //Obtención de los items de diseño
+            fontLoaded: false, //Variable para el cargado de las fuentes
         };
     }
 
+    /**
+     *
+     *
+     * @memberof WalletScreen
+     *
+     * Método para comprobar el funcionamiento de botones/iconos
+     *
+     */
     test = () => {
         alert("This is a test", "Hola");
     };
 
+    /**
+     *
+     *
+     * @static
+     * @memberof EarningNoDriverScreen
+     */
     static navigationOptions = {
         title: 'Mis ganancias Socio-No Conductor'
     };
 
+    /**
+     *
+     *
+     * @memberof EarningNoDriverScreen
+     *
+     * Método que ejecuta las peticiones de datos al WS antes de renderizar la vista
+     *
+     */
+    async componentWillMount(){
+        this.principal_body(); //Llamada al método principal que contiene el tratamiento de datos y componentes dinámicos
+    }
+
+    /**
+     *
+     *
+     * @memberof EarningNoDriverScreen
+     *
+     * Método que se ejecuta después de renderizar la vista; el cual carga las fuentes requeridas
+     *
+     */
     async componentDidMount(){
         await Font.loadAsync({
             'Aller_Lt': require('./../assets/fonts/Aller_Lt.ttf'),
         });
 
         this.setState({fontLoaded: true});
+    }
 
+    /**
+     *
+     *
+     * @memberof EarningNoDriverScreen
+     *
+     * Método que contiene el tratamiento de datos y componentes dinámicos, al igual que las peticiones al WS
+     *
+     */
+    principal_body = async () => {
         try{
-
-            const res = await axios.post('http://34.95.33.177:3001/inicio_fleet/interfaz_126/socio_no_conductor', {
+            const res = await axios.post('http://35.203.42.33:3001/inicio_fleet/interfaz_126/socio_no_conductor', {
                 id_usuario: this.state.id_usuario
             });
 
-            //console.log(res);
-            const obj = res.data.datos;
-            this.setState({
-                objChofer: obj,
-                validateWS: true
-            });
-            this.objToChofer();
+            if(res.status == 200){
+                const obj = res.data.datos;
+                this.setState({
+                    objChofer: obj,
+                    validateWS: true
+                });
+                this.objToChofer();
+            }else{
+                alert("Servicio no disponible, intente más tarde", "Error");
+                this.setState({
+                    validateWS: false
+                });
+            }
 
-        }catch(e){
-            console.log(e);
-            alert("Servicio no disponible, intente más tarde", "Error");
+        }catch(error){
+            //Error de conexión
+            if(error.message == 'Network Error'){
+                alert("Verifique su conexión e intente nuevamente", "Error");
+            }else{
+                alert("Servicio no disponible, intente más tarde", "Error");
+            }
+
+            console.log(error);
             this.setState({
                 validateWS: false
             });
         }
-
     }
 
+    /**
+     *
+     *
+     * @memberof EarningNoDriverScreen
+     */
     objToChofer = () => {
         const obj_chofer = this.state.objChofer;
         const obj_aux = [];
@@ -103,6 +171,11 @@ export default class EarningNoDriverScreen extends React.Component {
 
     }
 
+    /**
+     *
+     *
+     * @memberof EarningNoDriverScreen
+     */
     calculateTotal = () => {
         let obj_convert = this.state.obj_aux_final;
         let total = 0;
@@ -125,7 +198,14 @@ export default class EarningNoDriverScreen extends React.Component {
         });
     }
 
-    getCentavos = (numberValue) =>{
+    /**
+     *
+     *
+     * @param {*} numberValue
+     * @returns
+     * @memberof EarningNoDriverScreen
+     */
+    getCentavos(numberValue) {
         if(numberValue == '' || numberValue == null){
             numberValue = 0;
         }
@@ -141,6 +221,12 @@ export default class EarningNoDriverScreen extends React.Component {
         return outValue;
     }
 
+    /**
+     *
+     *
+     * @returns
+     * @memberof EarningNoDriverScreen
+     */
     render() {
         return (
             <View>
@@ -338,6 +424,7 @@ export default class EarningNoDriverScreen extends React.Component {
     }
 }
 
+//Estilos de diseño defenidos
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#000',

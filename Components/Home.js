@@ -11,13 +11,26 @@ import * as Font from 'expo-font';
 import TopTemplate from './TopTemplate';
 //import BottomTemplate from './BottomTemplate';
 
+/**
+ *
+ *
+ * @export
+ * @class HomeScreen
+ * @extends {React.Component}
+ */
 export default class HomeScreen extends React.Component {
+    /**
+     *Creates an instance of HomeScreen.
+     * @param {*} props
+     * @memberof HomeScreen
+     */
     constructor(props) {
         super(props);
         this.state = {
-            modalVisible: false,
-            selectedDate: null,
-            id_usuario: 7,
+            modalVisible: false, //Mostrar el calendario
+            selectedDate: null, //Variable para la búsqueda por fecha
+            id_usuario: 7, //id del usuario definido por el inicio de sesión
+            //Variables dinámicas de la aplicación
             obj_aux_final: [],
             obj_items: [],
             validateWS: false,
@@ -28,33 +41,97 @@ export default class HomeScreen extends React.Component {
             out_semana: "00/00 - 00/00",
             nombre_propietario: '',
             fontLoaded: false,
+            fecha_actual: ''
         };
         this.onDateChange = this.onDateChange.bind(this);
     }
 
+    /**
+     *
+     *
+     * @memberof HomeScreen
+     *
+     * Método para comprobar el funcionamiento de botones/iconos
+     */
     test = () => {
         alert("This is a test", "Hola");
     };
 
+    /**
+     *
+     *
+     * @static
+     * @memberof HomeScreen
+     */
     static navigationOptions = {
         title: 'Inicio'
     };
 
+    /**
+     *
+     *
+     * @param {*} visible
+     * @memberof HomeScreen
+     */
     setModalVisible(visible) {
         this.setState({modalVisible: visible});
     }
 
+    /**
+     *
+     *
+     * @memberof HomeScreen
+     */
     async componentDidMount(){
-
         await Font.loadAsync({
             'Aller_Lt': require('./../assets/fonts/Aller_Lt.ttf'),
             'Aller_Bd': require('./../assets/fonts/Aller_Bd.ttf'),
         });
 
         this.setState({fontLoaded: true});
+    }
 
+    /**
+     *
+     *
+     * @memberof HomeScreen
+     */
+    async componentWillMount(){
+        this.principal_body(); //Llamada al método principal que contiene el tratamiento de datos y componentes dinámicos
+    }
+
+    /**
+     *
+     *
+     * @memberof HomeScreen
+     */
+    principal_body = async () =>{
+        /******* Calcular fecha actual formateada ******/
+        let date, day, month, year, fecha;
+        date = new Date();  //Generar objeto de una nueva fecha
+
+        day = date.getDate();  //Obtener el día actual, formato 'DD'
+        month = date.getMonth() + 1;  //Mes actual, se suma uno por su inicializción como objeto en 0, formata 'MM'
+        year = date.getFullYear();  //Obtener el año actual en formato 'YYYY'
+
+        if(day.toString().length == 1 ){
+            day = '0' + day;  //Tratamiento del formato del día
+        }
+
+        if(month.toString().length == 1 ){
+            month = '0' + month;  //tratamiento del formato del mes
+        }
+
+        fecha = day + "/" + month + "/" + year;  //Formato completo de la fecha actual: 'DD/mm/YYYY'
+        this.setState({
+            fecha_actual: fecha  //Actualizar en su variable
+        });
+        /******* Calcular fecha actual formateada ******/
+
+        //Try-catch para manejar error de conexión
         try{
 
+            /******* Calcular fecha actual formateada para petición al WS ******/
             let date, day, month, year, fecha;
             date = new Date();
 
@@ -70,33 +147,52 @@ export default class HomeScreen extends React.Component {
                 month = '0' + month;
             }
 
-            fecha =  year + "-" + month + "-" + day;
+            fecha =  year + "-" + month + "-" + day; //Formato requerido
+            /******* Calcular fecha actual formateada para petición al WS ******/
 
-            const res = await axios.post('http://34.95.33.177:3001/inicio_fleet/interfaz_42/fleet_home', {
+            //Variable que contiene los datos de respuesta del WS
+            const res = await axios.post('http://35.203.42.33:3001/inicio_fleet/interfaz_42/fleet_home', {
                 id_usuario: this.state.id_usuario,
                 fecha_filtro: fecha
-            });
+            }); //Se requiere enviar las variables requeridas por el WS en formato JSON
 
-            //console.log(res);
-            const obj = res.data.datos;
-            this.setState({
-                objChofer: obj,
-                validateWS: true
-            });
+            if(res.status == 200){
+                //console.log(res);
+                const obj = res.data.datos;
+                this.setState({
+                    objChofer: obj,
+                    validateWS: true
+                });
 
-            this.objToChofer();
+                this.objToChofer();
+            }else{
+                alert("Servicio no disponible, intente más tarde", "Error");
+                this.setState({
+                    validateWS: false
+                });
+            }
 
-        }catch(e){
-            console.log(e);
-            alert("Servicio no disponible, intente más tarde", "Error");
+        }catch(error){ //Obtención del error
+            //Error de conexión
+            if(error.message == 'Network Error'){
+                alert("Verifique su conexión e intente nuevamente", "Error");
+            }else{
+                alert("Servicio no disponible, intente más tarde", "Error");
+            }
+
+            console.log(error);
             this.setState({
                 validateWS: false
             });
         }
-
     }
 
-    objToChofer = () => {
+    /**
+     *
+     *
+     * @memberof HomeScreen
+     */
+    objToChofer() {
         const obj_chofer = this.state.objChofer;
         const obj_aux = [];
 
@@ -150,7 +246,12 @@ export default class HomeScreen extends React.Component {
         this.componentBody();
     }
 
-    componentBody = () =>{
+    /**
+     *
+     *
+     * @memberof HomeScreen
+     */
+    componentBody() {
         const obj = this.state.obj_aux_final;
         let obj_items_aux = [];
 
@@ -216,7 +317,13 @@ export default class HomeScreen extends React.Component {
         }
     }
 
-    setInfoWS = () =>{
+    /**
+     *
+     *
+     * @returns
+     * @memberof HomeScreen
+     */
+    setInfoWS() {
         return(<View style={{
                     flex: 1,
                     justifyContent: 'center',
@@ -231,7 +338,12 @@ export default class HomeScreen extends React.Component {
                 </View>);
     }
 
-    calculateTotal = () => {
+    /**
+     *
+     *
+     * @memberof HomeScreen
+     */
+    calculateTotal() {
         let obj_convert = this.state.obj_aux_final;
         let total = 0;
         let ganancia_actual = 0;
@@ -252,6 +364,13 @@ export default class HomeScreen extends React.Component {
         });
     }
 
+    /**
+     *
+     *
+     * @param {*} date
+     * @param {*} type
+     * @memberof HomeScreen
+     */
     async onDateChange(date, type) {
 
         let fecha = this.getDateHourFullDate(date);
@@ -261,7 +380,7 @@ export default class HomeScreen extends React.Component {
 
         try{
 
-            const res = await axios.post('http://34.95.33.177:3001/inicio_fleet/interfaz_42/fleet_home', {
+            const res = await axios.post('http://35.203.42.33:3001/inicio_fleet/interfaz_42/fleet_home', {
                 id_usuario: this.state.id_usuario,
                 fecha_filtro: fecha
             });
@@ -284,7 +403,14 @@ export default class HomeScreen extends React.Component {
         }
     }
 
-    getDateHourFullDate = (date) => {
+    /**
+     *
+     *
+     * @param {*} date
+     * @returns
+     * @memberof HomeScreen
+     */
+    getDateHourFullDate(date) {
         const fecha_aux = date.toString();
 
         const split_fecha = fecha_aux.split(' ');
@@ -296,7 +422,14 @@ export default class HomeScreen extends React.Component {
         return fecha_final;
     }
 
-    getMonthNumber = (mes) => {
+    /**
+     *
+     *
+     * @param {*} mes
+     * @returns
+     * @memberof HomeScreen
+     */
+    getMonthNumber(mes) {
         switch (mes) {
             case 'Jan':
                 return '01';
@@ -325,7 +458,14 @@ export default class HomeScreen extends React.Component {
         }
     }
 
-    getMonthLetter = (mes) => {
+    /**
+     *
+     *
+     * @param {*} mes
+     * @returns
+     * @memberof HomeScreen
+     */
+    getMonthLetter (mes) {
         switch (mes) {
             case '01':
                 return 'ene';
@@ -354,7 +494,14 @@ export default class HomeScreen extends React.Component {
         }
     }
 
-    getCentavos = (numberValue) =>{
+    /**
+     *
+     *
+     * @param {*} numberValue
+     * @returns
+     * @memberof HomeScreen
+     */
+    getCentavos (numberValue){
         if(numberValue == '' || numberValue == null){
             numberValue = 0;
         }
@@ -370,6 +517,12 @@ export default class HomeScreen extends React.Component {
         return outValue;
     }
 
+    /**
+     *
+     *
+     * @returns
+     * @memberof HomeScreen
+     */
     render() {
         const { selectedDate } = this.state;
         const minDate = new Date(2019, 1, 1);
@@ -476,6 +629,26 @@ export default class HomeScreen extends React.Component {
                                         </View>
                                     </View>
                                 </Modal>
+                            </View>
+
+                        </View>
+
+                        <Divider style={styles.row}></Divider>
+
+                        <View style={{
+                            height: 25,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: 5,
+                            backgroundColor: '#979898'
+                        }}>
+
+                            <View>
+                                {
+                                    this.state.fontLoaded ? (
+                                        <Text style={{ fontFamily: 'Aller_Lt' }}>{this.state.fecha_actual}</Text>
+                                    ) : null
+                                }
                             </View>
 
                         </View>
@@ -695,6 +868,7 @@ export default class HomeScreen extends React.Component {
     }
 }
 
+//Estilos de diseño defenidos
 const styles = StyleSheet.create({
     row: {
         height: 5,
