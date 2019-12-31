@@ -1,7 +1,7 @@
 // In App.js in a new project
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { Divider } from 'react-native-elements';
 import { Table, Row, Rows } from 'react-native-table-component';
@@ -39,6 +39,8 @@ export default class EarningNoDriverScreen extends React.Component {
             objChofer: [],
             obj_items: [],
             fontLoaded: false,
+            width_window: Dimensions.get("window").width,
+            height_window: Dimensions.get("window").height,
         };
     }
 
@@ -226,8 +228,9 @@ export default class EarningNoDriverScreen extends React.Component {
                     </View>
                 </ScrollView>
                 <View style={{
-                    height: 90,
-                    marginTop: 485,
+                    height: (this.state.height_window*13)/100,
+                    width: this.state.width_window,
+                    marginTop: this.state.height_window - (this.state.height_window*26)/100,
                     paddingRight: 10,
                     paddingTop: 5,
                     position: 'absolute',

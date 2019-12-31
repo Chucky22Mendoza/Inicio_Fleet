@@ -9,7 +9,7 @@
  **/
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import Icon from "react-native-vector-icons/FontAwesome5";
 import * as Font from 'expo-font';
 
@@ -30,6 +30,8 @@ export default class TopTemplate extends React.Component {
         super(props);
         this.state = {
             fontLoaded: false,  //Variable para comprobar el cargado de fuentes
+            width_window: Dimensions.get("window").width,
+            height_window: Dimensions.get("window").height,
         };
     }
 
@@ -79,8 +81,9 @@ export default class TopTemplate extends React.Component {
     render() {
         return (
             <View style={{
-                height: 90,
-                marginTop: 485,
+                height: (this.state.height_window*13)/100,
+                width: this.state.width_window,
+                marginTop: this.state.height_window - (this.state.height_window*26)/100,
                 paddingRight: 10,
                 paddingTop: 5,
                 position: 'absolute',

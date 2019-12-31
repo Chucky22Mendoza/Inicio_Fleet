@@ -1,7 +1,7 @@
 // In App.js in a new project
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TouchableHighlight, ScrollView, Modal, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, TouchableHighlight, ScrollView, Modal, Image } from 'react-native';
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { Divider } from 'react-native-elements';
 import CalendarPicker from 'react-native-calendar-picker';
@@ -41,7 +41,9 @@ export default class HomeScreen extends React.Component {
             out_semana: "00/00 - 00/00",
             nombre_propietario: '',
             fontLoaded: false,
-            fecha_actual: ''
+            fecha_actual: '',
+            width_window: Dimensions.get("window").width,
+            height_window: Dimensions.get("window").height,
         };
         this.onDateChange = this.onDateChange.bind(this);
     }
@@ -394,6 +396,8 @@ export default class HomeScreen extends React.Component {
 
             this.objToChofer();
 
+            this.setModalVisible(!this.state.modalVisible);
+
         }catch(e){
             console.log(e);
             alert("Servicio no disponible, intente más tarde", "Error");
@@ -603,29 +607,6 @@ export default class HomeScreen extends React.Component {
                                                 selectedDayTextColor="#FFFFFF"
                                                 onDateChange={this.onDateChange}
                                             />
-
-                                            <View>
-                                                {
-                                                    this.state.fontLoaded ? (
-                                                        <Text style={{fontFamily: 'Aller_Lt'}}>Día Seleccionado: {date}</Text>
-                                                    ): null
-                                                }
-                                            </View>
-                                            <TouchableHighlight
-                                                onPress={() => {
-                                                    this.setModalVisible(!this.state.modalVisible);
-                                                }}
-                                                style={{
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    marginHorizontal: 50
-                                                }}>
-                                                    {
-                                                        this.state.fontLoaded ? (
-                                                            <Text style={{fontFamily: 'Aller_Lt', color: 'red'}}>Selecciona semana a consultar</Text>
-                                                        ): null
-                                                    }
-                                            </TouchableHighlight>
                                         </View>
                                     </View>
                                 </Modal>
@@ -747,8 +728,9 @@ export default class HomeScreen extends React.Component {
                     </View>
                 </ScrollView>
                 <View style={{
-                    height: 90,
-                    marginTop: 485,
+                    height: (this.state.height_window*13)/100,
+                    width: this.state.width_window,
+                    marginTop: this.state.height_window - (this.state.height_window*26)/100,
                     paddingRight: 10,
                     paddingTop: 5,
                     position: 'absolute',

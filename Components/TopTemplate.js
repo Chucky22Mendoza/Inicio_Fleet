@@ -11,6 +11,7 @@
 import React from 'react';
 import { View, StyleSheet, Image } from 'react-native';
 import Icon from "react-native-vector-icons/FontAwesome5";
+import * as Font from 'expo-font';
 
 /**
  *
