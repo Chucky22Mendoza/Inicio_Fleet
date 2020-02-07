@@ -153,7 +153,7 @@ export default class HomeScreen extends React.Component {
             /******* Calcular fecha actual formateada para petición al WS ******/
 
             //Variable que contiene los datos de respuesta del WS
-            const res = await axios.post('http://35.203.42.33:3001/inicio_fleet/interfaz_42/fleet_home', {
+            const res = await axios.post('http://35.203.57.92:3001/inicio_fleet/interfaz_42/fleet_home', {
                 id_usuario: this.state.id_usuario,
                 fecha_filtro: fecha
             }); //Se requiere enviar las variables requeridas por el WS en formato JSON
@@ -382,7 +382,7 @@ export default class HomeScreen extends React.Component {
 
         try{
 
-            const res = await axios.post('http://35.203.42.33:3001/inicio_fleet/interfaz_42/fleet_home', {
+            const res = await axios.post('http://35.203.57.92:3001/inicio_fleet/interfaz_42/fleet_home', {
                 id_usuario: this.state.id_usuario,
                 fecha_filtro: fecha
             });

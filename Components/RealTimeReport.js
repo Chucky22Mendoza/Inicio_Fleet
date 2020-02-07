@@ -96,7 +96,7 @@ export default class EarningNoDriverScreen extends React.Component {
     principal_body = async () => {
         try{
 
-            const res = await axios.post('http://35.203.42.33:3001/inicio_fleet/interfaz_121/tiempo_real', {
+            const res = await axios.post('http://35.203.57.92:3001/inicio_fleet/interfaz_121/tiempo_real', {
                 id_usuario: this.state.id_usuario
             });
 

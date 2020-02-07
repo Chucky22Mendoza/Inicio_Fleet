@@ -135,7 +135,7 @@ export default class EarningDriverScreen extends React.Component {
         //Try-catch para manejar error de conexión
         try{
             //Variable que contiene los datos de respuesta del WS
-            const res = await axios.post('http://35.203.42.33:3001/inicio_fleet/interfaz_124/socio_conductor', {
+            const res = await axios.post('http://35.203.57.92:3001/inicio_fleet/interfaz_124/socio_conductor', {
                 id_usuario: this.state.id_usuario
             });//Se requiere enviar las variables requeridas por el WS en formato JSON
 
