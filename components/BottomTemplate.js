@@ -2,7 +2,7 @@
 
 /**
  *
- * BOTTOMTEMPLATE es un componente utilizado para la parte superior de la aplicación
+ * BOTTOMTEMPLATE es un componente utilizado para la parte inferior de la aplicación
  * Este aún no ha sido implementado en la aplicación, pero será de utilidad cuando
  * se requiera integrar la aplicación completa
  *
@@ -11,7 +11,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import Icon from "react-native-vector-icons/FontAwesome5";
-import * as Font from 'expo-font';
 
 /**
  *
@@ -54,23 +53,8 @@ export default class TopTemplate extends React.Component {
      * @memberof TopTemplate
      */
     static navigationOptions = {
-        title: 'Inicio'
+        title: null
     };
-
-    /**
-     *
-     *
-     * @memberof TopTemplate
-     */
-    async componentDidMount(){
-        //cargar fuentes
-        await Font.loadAsync({
-            'Aller_Lt': require('./../assets/fonts/Aller_Lt.ttf'),
-        });
-
-        //Variable de carga de fuentes
-        this.setState({fontLoaded: true});
-    }
 
     /**
      *
@@ -81,9 +65,9 @@ export default class TopTemplate extends React.Component {
     render() {
         return (
             <View style={{
-                height: (this.state.height_window*13)/100,
+                height: (this.state.height_window * 13) / 100,
                 width: this.state.width_window,
-                marginTop: this.state.height_window - (this.state.height_window*26)/100,
+                marginTop: this.state.height_window - (this.state.height_window * 26) / 100,
                 paddingRight: 10,
                 paddingTop: 5,
                 position: 'absolute',
@@ -92,7 +76,7 @@ export default class TopTemplate extends React.Component {
                 backgroundColor: '#f0f4f7'
             }}>
 
-                <TouchableOpacity onPress={() => this.props.navigation.navigate("Home")}>
+                <TouchableOpacity onPress={() => this.props.navigation.navigate("HomeScreen")}>
                     <View style={{
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -101,13 +85,11 @@ export default class TopTemplate extends React.Component {
                         <Icon
                             name='home'
                             size={45}
-                            style={{color: '#ec6a2c'}}
+                            style={{ color: '#ec6a2c' }}
                         />
-                        {
-                            this.state.fontLoaded ? (
-                                <Text style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>Inicio</Text>
-                            ): null
-                        }
+
+                        <Text style={{ fontFamily: 'aller-lt', fontSize: 12 }}>Inicio</Text>
+
                     </View>
                 </TouchableOpacity>
 
@@ -120,13 +102,11 @@ export default class TopTemplate extends React.Component {
                         <Icon
                             name='car-side'
                             size={45}
-                            style={{color: '#ec6a2c'}}
+                            style={{ color: '#ec6a2c' }}
                         />
-                        {
-                            this.state.fontLoaded ? (
-                                <Text style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>Conductores</Text>
-                            ): null
-                        }
+
+                        <Text style={{ fontFamily: 'aller-lt', fontSize: 12 }}>Conductores</Text>
+
                     </View>
                 </TouchableOpacity>
 
@@ -139,13 +119,11 @@ export default class TopTemplate extends React.Component {
                         <Icon
                             name='car'
                             size={45}
-                            style={{color: '#ec6a2c'}}
+                            style={{ color: '#ec6a2c' }}
                         />
-                        {
-                            this.state.fontLoaded ? (
-                                <Text style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>Vehículos</Text>
-                            ): null
-                        }
+
+                        <Text style={{ fontFamily: 'aller-lt', fontSize: 12 }}>Vehículos</Text>
+
                     </View>
                 </TouchableOpacity>
 
@@ -158,13 +136,11 @@ export default class TopTemplate extends React.Component {
                         <Icon
                             name='user'
                             size={45}
-                            style={{color: '#ec6a2c'}}
+                            style={{ color: '#ec6a2c' }}
                         />
-                        {
-                            this.state.fontLoaded ? (
-                                <Text style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>Mi perfil</Text>
-                            ): null
-                        }
+
+                        <Text style={{ fontFamily: 'aller-lt', fontSize: 12 }}>Mi perfil</Text>
+
                     </View>
                 </TouchableOpacity>
 
@@ -177,13 +153,11 @@ export default class TopTemplate extends React.Component {
                         <Icon
                             name='chart-pie'
                             size={45}
-                            style={{color: '#ec6a2c'}}
+                            style={{ color: '#ec6a2c' }}
                         />
-                        {
-                            this.state.fontLoaded ? (
-                                <Text style={{ fontFamily: 'Aller_Lt', fontSize: 12 }}>Gestión</Text>
-                            ): null
-                        }
+
+                        <Text style={{ fontFamily: 'aller-lt', fontSize: 12 }}>Gestión</Text>
+
                     </View>
                 </TouchableOpacity>
 

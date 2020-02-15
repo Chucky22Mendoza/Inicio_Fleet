@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Inicio",
+    "name": "Inicio Fleet",
     "slug": "Inicio_Fleet",
     "privacy": "public",
     "sdkVersion": "34.0.0",
@@ -13,7 +13,7 @@
     "orientation": "portrait",
     "icon": "",
     "splash": {
-      "image": "./assets/logo/Yimi_degrado_completo.png",
+      "image": "./assets/images/Yimi_degrado_completo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -29,7 +29,7 @@
     "android": {
       "package": "com.kiotrack.Fleet"
     },
-    "description": "Nueva dirección IP",
+    "description": "Nueva estructura de proytecto",
     "githubUrl": "https://github.com/Chucky22Mendoza/Inicio_Fleet"
   }
 }
