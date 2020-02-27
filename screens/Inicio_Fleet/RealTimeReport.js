@@ -107,7 +107,7 @@ export default class EarningNoDriverScreen extends React.Component {
                     id_usuario: this.state.id_usuario
                 });
 
-                if (res.status == 200) {
+                if (res.data.datos.length != 0) {
                     //console.log(res);
                     const obj = res.data.datos;
                     this.setState({
@@ -117,7 +117,7 @@ export default class EarningNoDriverScreen extends React.Component {
 
                     this.objToChofer();
                 } else {
-                    Alert.alert('Error', 'Servicio no disponible, intente de nuevo más tarde.');
+                    Alert.alert('Información', 'No se encontró información.');
                     this.setState({
                         validateWS: false
                     });

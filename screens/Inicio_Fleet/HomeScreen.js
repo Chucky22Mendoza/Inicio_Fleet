@@ -183,7 +183,7 @@ export default class HomeScreen extends React.Component {
                     fecha_filtro: fecha
                 }); //Se requiere enviar las variables requeridas por el WS en formato JSON
 
-                if (res.status == 200) {
+                if (res.data.datos.length != 0) {
                     //console.log(res);
                     const obj = res.data.datos;
                     this.setState({
@@ -193,7 +193,7 @@ export default class HomeScreen extends React.Component {
 
                     this.objToChofer();
                 } else {
-                    Alert.alert('Error', 'Servicio no disponible, intente de nuevo más tarde.');
+                    Alert.alert('Información', 'No se encontró información.');
                     this.setState({
                         validateWS: false
                     });
@@ -405,7 +405,7 @@ export default class HomeScreen extends React.Component {
                     fecha_filtro: fecha
                 });
 
-                if(res.status == 200){
+                if(res.data.datos.length != 0){
                     const obj = res.data.datos;
 
                     this.setState({
@@ -417,7 +417,7 @@ export default class HomeScreen extends React.Component {
 
                     this.setModalVisible(!this.state.modalVisible);
                 }else{
-                    Alert.alert('Error', 'Servicio no disponible, intente de nuevo más tarde.');
+                    Alert.alert('Información', 'No se encontró información.');
                     this.setState({
                         validateWS: false
                     });

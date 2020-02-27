@@ -145,7 +145,7 @@ export default class EarningDriverScreen extends React.Component {
                 });//Se requiere enviar las variables requeridas por el WS en formato JSON
 
                 //Comprobar que la respuesta del WS es correcta
-                if (res.status == 200) {
+                if (res.data.datos.length != 0) {
                     //Inicialización de variables necesarias para la reconlacción de los datos
                     let tarjeta_gan, efectivo_gan, externo_gan, total_gan, total_gan_dia, cuota_plat_r, cuota_socio_r, cant_servicios;
 
@@ -197,7 +197,7 @@ export default class EarningDriverScreen extends React.Component {
                         adeudo_total: adeudo_total
                     });
                 } else { //Error en el WS
-                    Alert.alert('Error', 'Servicio no disponible, intente de nuevo más tarde.');
+                    Alert.alert('Información', 'No se encontró información.');
                     this.setState({
                         validateWS: false
                     });

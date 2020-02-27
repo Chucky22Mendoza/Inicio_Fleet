@@ -29,7 +29,7 @@
     "android": {
       "package": "com.kiotrack.Fleet"
     },
-    "description": "Nueva estructura de proytecto",
+    "description": "Cambio de alerta sin información",
     "githubUrl": "https://github.com/Chucky22Mendoza/Inicio_Fleet"
   }
 }
